@@ -1,0 +1,235 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+
+namespace CS1_Semenova
+{
+    public partial class Form1 : Form
+    {
+        public Form1()
+        {
+            InitializeComponent();
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            double[] datax = new double[] { 25, 15,  50 , 58 , 50, 61.5 ,
+                61 , 62 , 62 , 28 , 56 , 32 , 22 , 27 , 22 , 49 , 25 , 23 };
+            double[] datay = new double[] {79, 73, 102, 65, 102, 59, 29, 87, 148,
+                103, 56, 56, 60, 71, 37, 67, 40, 23};
+            int[] mark = new int[] {0,0,1,1,1,1,1,1,1,0,1,0,0,0,0,1,0,0 };
+            this.chart1.Series[0].Points.Clear();
+            int k = 3; // коэффициент k
+            double x = 42;
+            double y = 85;
+            for (int i = 0; i < 18; i++)
+            {
+                if (mark[i] == 0)
+                {
+                    this.chart1.Series[0].Points.AddXY(datax[i], datay[i]);
+                }
+                else
+                {
+                    this.chart1.Series[1].Points.AddXY(datax[i], datay[i]);
+                }
+                
+            }
+            this.chart1.Series[2].Points.AddXY(x,y);
+            double[] res = new double[18];
+            for (int i = 0; i < 18; i++)
+            {
+                res[i] = Math.Sqrt(Math.Pow(Math.Abs(datax[i] - x), 2) + Math.Pow(Math.Abs(datay[i] - y), 2));
+            }
+            int vote0 = 0;
+            int vote1 = 0;
+            for (int i = 0; i < k; i++)
+            {
+                double min = 99999;
+                int tj = 0;
+                for (int j = 0; j < 18; j++)
+                {
+                    if (res[j] < min)
+                    {
+                        tj = j;
+                        min = res[j];
+                    }
+                }
+                if (mark[tj] == 0)
+                {
+                    vote0 += 1;
+                }
+                else
+                {
+                    vote1 += 1;
+                }
+                res[tj] = 99999;
+            }
+            if (vote0 > vote1)
+            {
+                textBox1.Text = "red";
+            }
+            else
+            {
+                textBox1.Text = "blue";
+            }
+            
+        }
+        private void textBox1_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+        private void Form1_Load(object sender, EventArgs e)
+        {
+
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            double[] datax = new double[] { 25, 45,  50 , 58 , 50, 61.5 ,
+                61 , 62 , 57 , 41 , 56 , 32 , 37 , 46 , 22 , 49 , 25 , 23 };
+            double[] datay = new double[] {79, 73, 102, 65, 102, 59, 29, 87, 120,
+                103, 56, 56, 60, 71, 37, 67, 40, 23};
+            int z = 6;
+            double[] kf = new double[z];
+            int[,] res = new int[18, z];
+            kf[0] = -1000;
+            kf[1] = -1000;
+            for (int i = 2; i < z; i++)
+            {
+                double[] centerx = new double[i];
+                double[] centery = new double[i];
+                int[] mark = new int[18];
+                bool checker = true;
+                for (int j = 0; j < i; j++)
+                {
+                    centerx[j] = 22 + (7*j);
+                    centery[j] = 23 + (15*j);
+                }
+                double[,] table = new double[18, i];
+                while (checker)
+                {
+                    checker = false;
+                    for (int k = 0; k < 18; k++)
+                    {
+                        for (int u = 0; u < i; u++)
+                        {
+                            table[k, u] = Math.Sqrt(Math.Pow(Math.Abs(datax[k] - centerx[u]), 2) + Math.Pow(Math.Abs(datay[k] - centery[u]), 2));
+                        }
+                    }
+
+                    for (int k = 0; k < 18; k++)
+                    {
+                        double min = 999999;
+                        int tu = 0;
+                        for (int u = 0; u < i; u++)
+                        {
+                            if (table[k, u] < min)
+                            {
+                                tu = u;
+                                min = table[k, u];
+                            }
+                        }
+                        if (mark[k] != tu)
+                        {
+                            mark[k] = tu;
+                            checker = true;
+                        }
+
+                    }
+                    if (checker)
+                    {
+                        for (int t = 0; t < i; t++)
+                        {
+                            double tx = 0;
+                            double ty = 0;
+                            double dx = 0;
+                            double dy = 0;
+                            for (int o = 0; o < 18; o++)
+                            {
+                                if (mark[o] == t)
+                                {
+                                    tx += datax[o];
+                                    dx += 1;
+                                    ty += datay[o];
+                                    dy += 1;
+                                }
+                            }
+                            centerx[t] = tx / dx;
+                            centery[t] = ty / dy;
+                        }
+                    }
+                    
+                }
+                double inside = 0;
+                double inc = 0;
+                double outside = 0;
+                for (int j = 0; j < 18; j++)
+                {
+                    for (int r = 0; r < 18; r++)
+                    {
+                        if (j != r && mark[r] == mark[j])
+                        {
+                            inside += Math.Sqrt(Math.Pow(Math.Abs(datax[j] - datax[r]), 2) + Math.Pow(Math.Abs(datay[j] - datay[r]), 2));
+                            inc += 1;
+                        }
+                    }
+                    double[] tocenter = new double[i];
+                    double mint = 999999;
+                    for (int r = 0; r < i; r++)
+                    {
+                        double w = Math.Sqrt(Math.Pow(Math.Abs(datax[j] - centerx[r]), 2) + Math.Pow(Math.Abs(datay[j] - centery[r]), 2));
+                        if (w < mint)
+                        {
+                            mint = w;
+                        }
+                    }
+                    outside += mint;
+                }
+                double ai = inside / inc;
+                double bi = outside / 18.0 ;
+                if (bi > ai)
+                {
+                    kf[i] = (bi - ai) / (bi);
+                }
+                else
+                {
+                    kf[i] = (bi - ai) / (ai);
+                }
+                for (int p = 0; p < 18; p++)
+                {
+                    res[p, i] = mark[p];
+                }
+            }
+
+            for (int i = 2; i < z; i++)
+            {
+                this.chart2.Series[0].Points.AddXY(i, kf[i]);
+            }
+            double maxi = -500;
+            int s = 0;
+            for (int i = 2; i < z; i++)
+            {
+                if (kf[i] > maxi)
+                {
+                    s = i;
+                    maxi = kf[i];
+                }
+            }
+            for (int i = 0; i < 18; i++)
+            {
+                this.chart3.Series[res[i, s]].Points.AddXY(datax[i],datay[i]);
+            }
+        }
+
+        private void textBox2_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+    }
+}
